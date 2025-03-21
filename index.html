@@ -3,58 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>钥匙密码显示页面</title>
+    <title>炉桥驾校——钥匙盒密码查看页</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
         }
         .time {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
         }
         .instructions {
-            text-align: left;
+            font-size: 16px;
+            color: #7f8c8d;
             margin-bottom: 20px;
+            text-align: left;
         }
         .password {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 20px;
         }
         .password input {
             margin-left: 10px;
         }
+        .auth-code-input {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .auth-code-input input {
+            width: 100%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .auth-code-input button {
+            padding: 10px 20px;
+            background-color: #2980b9;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .auth-code-input button:hover {
+            background-color: #2c3e50;
+        }
         .debug-info {
             font-size: 14px;
-            color: #555;
+            color: #bdc3c7;
             margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <!-- 第一部分：动态显示当前的年月日和时间 -->
-    <div class="time" id="current-time"></div>
+    <div class="container">
+        <!-- 第一部分：动态显示当前的年月日和时间 -->
+        <div class="time" id="current-time"></div>
 
-    <!-- 第二部分：显示一段不变的文字 -->
-    <div class="instructions">
-        1.上午7：25和下午13：30后会自动显示钥匙密码。<br>
-        2.中午11：55后手动输入授权码后显示钥匙密码，其他时间输入无用
-    </div>
+        <!-- 第二部分：显示一段不变的文字 -->
+        <div class="instructions">
+            1.上午7：25和下午13：30后会自动显示钥匙密码。<br>
+            2.中午11：55后手动输入授权码后显示钥匙密码，其他时间输入无用
+        </div>
 
-    <!-- 第三部分和第四部分 -->
-    <div class="password" id="password-display">
-        钥匙密码：不在拿钥匙的时间，再等等吧。
-    </div>
+        <!-- 第三部分和第四部分 -->
+        <div class="password" id="password-display">
+            钥匙密码：不在拿钥匙的时间，再等等吧。
+        </div>
 
-    <!-- 第五部分：密码框 -->
-    <div id="auth-code-input" style="display: none;">
-        <input type="text" id="auth-code" placeholder="请输入授权码">
-        <button onclick="checkAuthCode()">确认</button>
-    </div>
+        <!-- 第五部分：密码框 -->
+        <div class="auth-code-input" id="auth-code-input">
+            <input type="text" id="auth-code" placeholder="请输入授权码">
+            <button onclick="checkAuthCode()">确认</button>
+        </div>
 
-    <!-- 调试信息：显示变量a的值 -->
-    <div class="debug-info" id="debug-info">
-        调试信息：变量a的值将显示在这里
+        <!-- 调试信息：显示变量a的值 -->
+        <div class="debug-info" id="debug-info">
+            调试信息：变量a的值将显示在这里
+        </div>
     </div>
 
     <script>
