@@ -3,101 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>密码查看页面</title>
+    <title>钥匙密码系统</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            margin: 20px;
         }
         .container {
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .time-info, .password-info, .input-section {
+            margin-bottom: 20px;
+        }
+        .password-info span {
+            font-weight: bold;
         }
         input[type="password"] {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 5px;
+            margin-right: 10px;
         }
         button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .hidden-text {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-        .error-message {
-            margin-top: 10px;
-            color: red;
-            font-size: 16px;
-            display: none;
+            padding: 5px 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="currentDateTime"></h1> <!-- 用于显示当前日期和时间 -->
-        <input type="password" id="password" placeholder="请输入密码">
-        <button onclick="checkPassword()">查看</button>
-        <div class="hidden-text" id="hiddenText" style="display: none;">
-            这是一段秘密文字，只有输入正确密码才能看到哦！
+        <!-- 第一部分：显示当前日期和时间 -->
+        <div class="time-info">
+            <p id="current-time"></p>
         </div>
-        <div class="error-message" id="errorMessage">
-            密码错误，请重新输入！
+
+        <!-- 第二部分：显示获取时间 -->
+        <div class="time-info">
+            <p>1.上午7：25和下午13：30后会自动显示钥匙密码。<br>2.中午11：55后手动输入授权码后显示钥匙密码，其他时间输入无用</p>
+        </div>
+
+        <!-- 第四部分：显示钥匙密码 -->
+        <div class="password-info">
+            <span id="password-text">还没到拿钥匙的时间，再等等吧！</span>
+        </div>
+
+        <!-- 第五部分：密码输入框 -->
+        <div class="input-section">
+            <input type="password" id="password-input" placeholder="请输入密码">
+            <button onclick="checkPassword()">确定</button>
+            <p id="password-result"></p>
         </div>
     </div>
 
     <script>
-        // 将密码拆分成多个部分，通过计算得到最终密码
-        const part0 = String.fromCharCode(48); // ASCII值48对应的字符是'0'
-        const part1 = String.fromCharCode(50); // ASCII值50对应的字符是'2'
-        const part2 = String.fromCharCode(57); // ASCII值57对应的字符是'9'
-        const part3 = String.fromCharCode(49); // ASCII值49对应的字符是'1'
-
-        // 检查密码
-        function checkPassword() {
-            const userPassword = document.getElementById('password').value;
-            const correctPassword = part0 + part1 + part2 + part3; // 通过计算得到正确的密码
-            const hiddenText = document.getElementById('hiddenText');
-            const errorMessage = document.getElementById('errorMessage');
-
-            if (userPassword === correctPassword) {
-                hiddenText.style.display = 'block';
-                errorMessage.style.display = 'none'; // 隐藏错误信息
-            } else {
-                hiddenText.style.display = 'none'; // 隐藏秘密文字
-                errorMessage.style.display = 'block'; // 显示错误信息
-            }
-        }
-
-        // 监听回车键事件
-        document.getElementById('password').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                checkPassword(); // 调用密码验证函数
-            }
-        });
-
-        // 显示当前日期和时间
-        function showCurrentDateTime() {
+        // 获取当前时间并显示
+        function updateTime() {
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -106,14 +64,80 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
 
-            const dateTimeString = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-            document.getElementById('currentDateTime').innerText = dateTimeString;
+            document.getElementById('current-time').innerText = `当前时间：${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            // 每秒更新时间
+            setTimeout(updateTime, 1000);
         }
 
-        // 每秒更新一次日期和时间
-        setInterval(showCurrentDateTime, 1000);
-        // 初始化显示
-        showCurrentDateTime();
+        // 计算今天是今年的第几天
+        function getDayOfYear() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 0);
+            const diff = now - startOfYear;
+            const oneDay = 1000 * 60 * 60 * 24;
+            return Math.floor(diff / oneDay);
+        }
+
+        // 获取指定索引的数组
+        async function getArray(index) {
+            const response = await fetch('https://lqlisong.github.io/lqjxmm/sqm.json');
+            const data = await response.json();
+            return data[index];
+        }
+
+        // 更新钥匙密码显示
+        function updatePassword() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            const dayOfYear = getDayOfYear();
+            const newIndex = dayOfYear + 88;
+
+            // 获取a和b
+            getArray(newIndex - 1).then(a => {
+                if ((hours === 7 && minutes >= 25) || (hours >= 8 && hours < 11) || (hours === 11 && minutes < 30)) {
+                    document.getElementById('password-text').innerText = `钥匙密码：${a[0]}`;
+                } else if ((hours === 13 && minutes >= 30) || (hours >= 14 && hours < 17) || (hours === 17 && minutes < 30)) {
+                    document.getElementById('password-text').innerText = `钥匙密码：${a[1]}`;
+                } else {
+                    document.getElementById('password-text').innerText = '还没到拿钥匙的时间，再等等吧！';
+                }
+            });
+        }
+
+        // 检查密码
+        function checkPassword() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const password = document.getElementById('password-input').value;
+
+            const dayOfYear = getDayOfYear();
+            const newIndex = dayOfYear + 88;
+
+            // 获取a和b
+            getArray(newIndex - 1).then(a => {
+                getArray(newIndex).then(b => {
+                    if (password === '0291') {
+                        document.getElementById('password-result').innerText = 
+                        `今日密码，上午：${a[0]}，下午：${a[1]}\n明日密码，上午：${b[0]}，下午：${b[1]}`;
+                    } else if (password === '5431' && ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 25))) {
+                        document.getElementById('password-result').innerText = a[1];
+                    } else if (password === '5431') {
+                        document.getElementById('password-text').innerText = '11：55到13：25间输入授权码，才能获得钥匙密码';
+                    } else {
+                        document.getElementById('password-text').innerText = '别瞎试了，试多了网站会拉黑你的，找我也不会给你解的!';
+                    }
+                });
+            });
+        }
+
+        // 初始化
+        updateTime();
+        updatePassword();
+        setInterval(updatePassword, 60000); // 每分钟更新一次密码显示
     </script>
 </body>
 </html>
