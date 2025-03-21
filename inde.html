@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码查看页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="password"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .hidden-text {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        .error-message {
+            margin-top: 10px;
+            color: red;
+            font-size: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="currentDateTime"></h1> <!-- 用于显示当前日期和时间 -->
+        <input type="password" id="password" placeholder="请输入密码">
+        <button onclick="checkPassword()">查看</button>
+        <div class="hidden-text" id="hiddenText" style="display: none;">
+            这是一段秘密文字，只有输入正确密码才能看到哦！
+        </div>
+        <div class="error-message" id="errorMessage">
+            密码错误，请重新输入！
+        </div>
+    </div>
+
+    <script>
+        // 将密码拆分成多个部分，通过计算得到最终密码
+        const part0 = String.fromCharCode(48); // ASCII值48对应的字符是'0'
+        const part1 = String.fromCharCode(50); // ASCII值50对应的字符是'2'
+        const part2 = String.fromCharCode(57); // ASCII值57对应的字符是'9'
+        const part3 = String.fromCharCode(49); // ASCII值49对应的字符是'1'
+
+        // 检查密码
+        function checkPassword() {
+            const userPassword = document.getElementById('password').value;
+            const correctPassword = part0 + part1 + part2 + part3; // 通过计算得到正确的密码
+            const hiddenText = document.getElementById('hiddenText');
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (userPassword === correctPassword) {
+                hiddenText.style.display = 'block';
+                errorMessage.style.display = 'none'; // 隐藏错误信息
+            } else {
+                hiddenText.style.display = 'none'; // 隐藏秘密文字
+                errorMessage.style.display = 'block'; // 显示错误信息
+            }
+        }
+
+        // 监听回车键事件
+        document.getElementById('password').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword(); // 调用密码验证函数
+            }
+        });
+
+        // 显示当前日期和时间
+        function showCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const dateTimeString = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentDateTime').innerText = dateTimeString;
+        }
+
+        // 每秒更新一次日期和时间
+        setInterval(showCurrentDateTime, 1000);
+        // 初始化显示
+        showCurrentDateTime();
+    </script>
+</body>
+</html>
