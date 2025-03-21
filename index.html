@@ -31,20 +31,11 @@
             color: #2c3e50;
             margin-bottom: 10px;
         }
-        .instructions {
-            font-size: 16px;
-            color: #7f8c8d;
-            margin-bottom: 20px;
-            text-align: left;
-        }
         .password {
             font-size: 20px;
             font-weight: bold;
             color: #2980b9;
             margin-bottom: 20px;
-        }
-        .password input {
-            margin-left: 10px;
         }
         .auth-code-input {
             display: none;
@@ -81,12 +72,6 @@
     <div class="container">
         <!-- 第一部分：动态显示当前的年月日和时间 -->
         <div class="time" id="current-time"></div>
-
-        <!-- 第二部分：显示一段不变的文字 -->
-        <div class="instructions">
-            1.上午7：25和下午13：30后会自动显示钥匙密码。<br>
-            2.中午11：55后手动输入授权码后显示钥匙密码，其他时间输入无用
-        </div>
 
         <!-- 第三部分和第四部分 -->
         <div class="password" id="password-display">
@@ -203,9 +188,14 @@
             if (authCode === a[2]) {
                 document.getElementById('password-display').textContent = `钥匙密码：${a[1]}`;
             } else {
-                document.getElementById('password-display').textContent = '授权码错误，请检查与工作人员提供的授权码是否一致';
+                alert('授权码错误，请检查与工作人员提供的授权码是否一致');
             }
         }
+
+        // 在页面加载时弹出提示框
+        window.onload = function() {
+            alert("提示：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55后手动输入授权码后显示钥匙密码。\n3. 11：55至13：20的时间段仅面向没时间来的上班族。");
+        };
 
         // 每秒更新时间
         setInterval(updateTime, 1000);
