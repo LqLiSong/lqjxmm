@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>密码验证页面</title>
+    <title>查看密码与授权码</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -25,17 +25,12 @@
     <div class="result" id="result"></div>
 
     <script>
-        // Base64编码的JSON URL
-        const encodedUrl = "aHR0cHM6Ly9scWxpc29uLmdpdGh1Yi5pby9scWp4bW0vc3FtLmpzb24=";
+        const encodedUrl = "aHR0cHM6Ly9scWxpc29uZy5naXRodWIuaW8vbHFqeG1tL3NxbS5qc29u";
         const jsonUrl = atob(encodedUrl); // 解码为原始URL
-
-        // 获取JSON数据
         async function fetchData() {
             const response = await fetch(jsonUrl);
             return await response.json();
         }
-
-        // 计算今天是今年的第几天
         function getDayOfYear() {
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 0);
@@ -43,8 +38,6 @@
             const oneDay = 1000 * 60 * 60 * 24;
             return Math.floor(diff / oneDay);
         }
-
-        // 检查密码
         async function checkPassword() {
             const password = document.getElementById('password').value;
             const data = await fetchData();
