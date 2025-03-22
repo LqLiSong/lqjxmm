@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>炉桥驾校——钥匙盒密码查看页</title>
+    <title>炉桥驾校——钥匙柜密码查看页</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -42,7 +42,7 @@
             margin-bottom: 20px;
         }
         .auth-code-input input {
-            width: 100%;
+            width: calc(100% - 120px); /* 调整宽度 */
             padding: 10px;
             margin-right: 10px;
             border: 1px solid #bdc3c7;
@@ -98,6 +98,8 @@
         const jsonDataUrl = atob(encodedUrl);
 
         let jsonData = [];
+        let isAuthCodeEntered = false; // 新增标志变量
+
         fetch(jsonDataUrl)
             .then(response => response.json())
             .then(data => {
@@ -165,17 +167,24 @@
                 // 上午7:25到中午11:30
                 passwordDisplay.textContent = `钥匙密码：${a[0] || '不在拿钥匙的时间，再等等吧。'}`;
                 authCodeInput.style.display = 'none';
+                isAuthCodeEntered = false; // 重置标志
             } else if ((hours === 13 && minutes >= 30) || (hours > 13 && hours < 17) || (hours === 17 && minutes < 30)) {
                 // 下午1:30到下午5:30
                 passwordDisplay.textContent = `钥匙密码：${a[1] || '不在拿钥匙的时间，再等等吧。'}`;
                 authCodeInput.style.display = 'none';
-            } else if (hours === 11 && minutes >= 55 || (hours === 12 && minutes <= 15)) {
-                // 中午11:55到中午12:15
-                passwordDisplay.textContent = '请输入授权码';
-                authCodeInput.style.display = '';
+                isAuthCodeEntered = false; // 重置标志
+            } else if ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 15)) {
+                // 中午11:55到中午13:15
+                if (!isAuthCodeEntered) {
+                    passwordDisplay.textContent = '请输入授权码';
+                    authCodeInput.style.display = 'flex'; // 使用flex布局
+                    authCodeInput.style.justifyContent = 'space-between'; // 两端对齐
+                }
             } else {
                 // 其他时间
-                passwordDisplay.textContent = '不在拿钥匙的时间，再等等吧。';
+                if (!isAuthCodeEntered) {
+                    passwordDisplay.textContent = '不在拿钥匙的时间，再等等吧。';
+                }
                 authCodeInput.style.display = 'none';
             }
         }
@@ -187,6 +196,7 @@
             const a = jsonData[dayOfYear - 1] || [];
             if (authCode === a[2]) {
                 document.getElementById('password-display').textContent = `钥匙密码：${a[1]}`;
+                isAuthCodeEntered = true; // 设置标志为true，表示已经输入授权码
             } else {
                 alert('授权码错误，请检查与工作人员提供的授权码是否一致');
             }
@@ -194,11 +204,10 @@
 
         // 在页面加载时弹出提示框
         window.onload = function() {
-            alert("炉桥驾校：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55后手动输入授权码后显示钥匙密码。\n3. 中午11：55至13：20的时间段仅面向没时间来的上班族。");
+            alert("炉桥驾校：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55至13：15间手动输入授权码后显示钥匙密码。");
+            // 每秒更新时间
+            setInterval(updateTime, 1000);
         };
-
-        // 每秒更新时间
-        setInterval(updateTime, 1000);
     </script>
 </body>
 </html>
