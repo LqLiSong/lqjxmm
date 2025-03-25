@@ -1,89 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>炉桥驾校——钥匙柜密码查看页</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-        .time {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .password {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2980b9;
-            margin-bottom: 20px;
-        }
-        .auth-code-input {
-            display: none;
-            margin-bottom: 20px;
-        }
-        .auth-code-input input {
-            width: calc(100% - 120px); /* 调整宽度 */
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .auth-code-input button {
-            padding: 10px 20px;
-            background-color: #2980b9;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .auth-code-input button:hover {
-            background-color: #2c3e50;
-        }
-        .debug-info {
-            font-size: 14px;
-            color: #bdc3c7;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="time" id="current-time"></div>
-
-        <div class="password" id="password-display">
-            钥匙密码：不在拿钥匙的时间，再等等吧。
-        </div>
-
-        <div class="auth-code-input" id="auth-code-input">
-            <input type="text" id="auth-code" placeholder="请输入授权码">
-            <button onclick="checkAuthCode()">确认</button>
-        </div>
-
-    </div>
-
-    <script>
+<script>
     // 编码后的 JSON 文件路径
     const encodedUrl = "aHR0cHM6Ly9scWxpc29uZy5naXRodWIuaW8vbHFqeG1tL3NxbS5qc29u";
 
@@ -106,13 +21,17 @@
                         updateTime();
                     } catch (error) {
                         console.error("JSON数据解析失败", error);
-                        document.getElementById("debug-info").textContent =
-                            "调试信息：JSON数据解析失败，请检查文件内容";
+                        const debugInfo = document.getElementById("debug-info");
+                        if (debugInfo) {
+                            debugInfo.textContent = "调试信息：JSON数据解析失败，请检查文件内容";
+                        }
                     }
                 } else {
                     console.error("JSON数据加载失败", xhr.statusText);
-                    document.getElementById("debug-info").textContent =
-                        "调试信息：JSON数据加载失败，状态码：" + xhr.status + "，请检查网络连接或文件路径";
+                    const debugInfo = document.getElementById("debug-info");
+                    if (debugInfo) {
+                        debugInfo.textContent = "调试信息：JSON数据加载失败，状态码：" + xhr.status + "，请检查网络连接或文件路径";
+                    }
                 }
             }
         };
@@ -151,9 +70,11 @@
     // 更新时间显示
     function updateTime() {
         const timeDisplay = document.getElementById("current-time");
-        const dateTime = getCurrentDateTime();
-        timeDisplay.textContent = `${dateTime.dateStr} ${dateTime.timeStr}`;
-        updatePasswordDisplay(dateTime);
+        if (timeDisplay) {
+            const dateTime = getCurrentDateTime();
+            timeDisplay.textContent = `${dateTime.dateStr} ${dateTime.timeStr}`;
+            updatePasswordDisplay(dateTime);
+        }
     }
 
     // 更新密码显示
@@ -161,38 +82,40 @@
         const passwordDisplay = document.getElementById("password-display");
         const authCodeInput = document.getElementById("auth-code-input");
         const debugInfo = document.getElementById("debug-info");
-        const dayOfYear = getDayOfYear(new Date(dateTime.year, dateTime.month - 1, dateTime.day));
-        const a = jsonData[dayOfYear - 1] || [];
+        if (passwordDisplay && authCodeInput && debugInfo) {
+            const dayOfYear = getDayOfYear(new Date(dateTime.year, dateTime.month - 1, dateTime.day));
+            const a = jsonData[dayOfYear - 1] || [];
 
-        // 显示变量a的值
-        debugInfo.textContent = `调试信息：变量a的值为 [${a.join(", ")}]，今天是今年的第${dayOfYear}天`;
+            // 显示变量a的值
+            debugInfo.textContent = `调试信息：变量a的值为 [${a.join(", ")}]，今天是今年的第${dayOfYear}天`;
 
-        const hours = parseInt(dateTime.hours, 10);
-        const minutes = parseInt(dateTime.minutes, 10);
+            const hours = parseInt(dateTime.hours, 10);
+            const minutes = parseInt(dateTime.minutes, 10);
 
-        if ((hours === 7 && minutes >= 25) || (hours > 7 && hours < 11) || (hours === 11 && minutes < 30)) {
-            // 上午7:25到中午11:30
-            passwordDisplay.textContent = `钥匙密码：${a[0] || "不在拿钥匙的时间，再等等吧。"}`;
-            authCodeInput.style.display = "none";
-            isAuthCodeEntered = false; // 重置标志
-        } else if ((hours === 13 && minutes >= 25) || (hours > 13 && hours < 17) || (hours === 17 && minutes < 30)) {
-            // 下午1:25到下午5:30
-            passwordDisplay.textContent = `钥匙密码：${a[1] || "不在拿钥匙的时间，再等等吧。"}`;
-            authCodeInput.style.display = "none";
-            isAuthCodeEntered = false; // 重置标志
-        } else if ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 15)) {
-            // 中午11:55到中午13:15
-            if (!isAuthCodeEntered) {
-                passwordDisplay.textContent = "请输入授权码";
-                authCodeInput.style.display = "flex"; // 使用flex布局
-                authCodeInput.style.justifyContent = "space-between"; // 两端对齐
+            if ((hours === 7 && minutes >= 25) || (hours > 7 && hours < 11) || (hours === 11 && minutes < 30)) {
+                // 上午7:25到中午11:30
+                passwordDisplay.textContent = `钥匙密码：${a[0] || "不在拿钥匙的时间，再等等吧。"}`;
+                authCodeInput.style.display = "none";
+                isAuthCodeEntered = false; // 重置标志
+            } else if ((hours === 13 && minutes >= 25) || (hours > 13 && hours < 17) || (hours === 17 && minutes < 30)) {
+                // 下午1:25到下午5:30
+                passwordDisplay.textContent = `钥匙密码：${a[1] || "不在拿钥匙的时间，再等等吧。"}`;
+                authCodeInput.style.display = "none";
+                isAuthCodeEntered = false; // 重置标志
+            } else if ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 15)) {
+                // 中午11:55到中午13:15
+                if (!isAuthCodeEntered) {
+                    passwordDisplay.textContent = "请输入授权码";
+                    authCodeInput.style.display = "flex"; // 使用flex布局
+                    authCodeInput.style.justifyContent = "space-between"; // 两端对齐
+                }
+            } else {
+                // 其他时间
+                if (!isAuthCodeEntered) {
+                    passwordDisplay.textContent = "不在拿钥匙的时间，再等等吧。";
+                }
+                authCodeInput.style.display = "none";
             }
-        } else {
-            // 其他时间
-            if (!isAuthCodeEntered) {
-                passwordDisplay.textContent = "不在拿钥匙的时间，再等等吧。";
-            }
-            authCodeInput.style.display = "none";
         }
     }
 
@@ -202,7 +125,10 @@
         const dayOfYear = getDayOfYear(new Date());
         const a = jsonData[dayOfYear - 1] || [];
         if (authCode === a[2]) {
-            document.getElementById("password-display").textContent = `钥匙密码：${a[1]}`;
+            const passwordDisplay = document.getElementById("password-display");
+            if (passwordDisplay) {
+                passwordDisplay.textContent = `钥匙密码：${a[1]}`;
+            }
             isAuthCodeEntered = true; // 设置标志为true，表示已经输入授权码
         } else {
             alert("授权码错误，请检查与工作人员提供的授权码是否一致");
@@ -213,8 +139,6 @@
     window.onload = function () {
         alert("炉桥驾校：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55至13:15间手动输入授权码后显示钥匙密码。");
         loadJsonData(); // 调用加载JSON数据的函数
-        setInterval(updateTime, 1000); // 每秒更新时间
+        setInterval(updateTime, 2000); // 每秒更新时间
     };
 </script>
-</body>
-</html>
