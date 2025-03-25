@@ -208,11 +208,8 @@
     }
 
     // 在页面加载时弹出提示框
-    window.onload = function () {
-        alert("炉桥驾校：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55至13:15间手动输入授权码后显示钥匙密码。");
-        loadJsonData(); // 调用加载JSON数据的函数
+
         setInterval(updateTime, 1000); // 每秒更新时间
-    };
 </script>
 </body>
 </html>
