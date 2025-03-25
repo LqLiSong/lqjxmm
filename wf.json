@@ -1,20 +1,8 @@
 [
     {
-        "name": "张三",
+        "name": "测试",
         "violationDate": "2025-03-20",
         "issueDate": "2025-03-21",
-        "count": 2
-    },
-    {
-        "name": "李四",
-        "violationDate": "2025-03-21",
-        "issueDate": "2025-03-22",
-        "count": 1
-    },
-    {
-        "name": "王五",
-        "violationDate": "2025-03-22",
-        "issueDate": "2025-03-23",
-        "count": 3
+        "count": 0
     }
 ]
