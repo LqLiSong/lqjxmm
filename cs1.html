@@ -84,103 +84,135 @@
     </div>
 
     <script>
+    // 编码后的 JSON 文件路径
+    const encodedUrl = "aHR0cHM6Ly9scWxpc29uZy5naXRodWIuaW8vbHFqeG1tL3NxbS5qc29u";
 
-        const jsonDataUrl = "https://lqlisong.github.io/lqjxmm/sqm.json";
+    // 解码路径
+    const jsonDataUrl = atob(encodedUrl);
 
-        let jsonData = [];
-        let isAuthCodeEntered = false; // 新增标志变量
+    let jsonData = [];
+    let isAuthCodeEntered = false; // 新增标志变量
 
-        fetch(jsonDataUrl)
-            .then(response => response.json())
-            .then(data => {
-                jsonData = data;
-                console.log('JSON数据加载成功', jsonData);
-                updateTime();
-            })
-            .catch(error => {
-                console.error('JSON数据加载失败', error);
-                document.getElementById('debug-info').textContent = '调试信息：JSON数据加载失败，请检查网络连接或文件路径';
-            });
-
-        function getCurrentDateTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            return {
-                year,
-                month,
-                day,
-                hours,
-                minutes,
-                seconds,
-                dateStr: `${year}-${month}-${day}`,
-                timeStr: `${hours}:${minutes}:${seconds}`
-            };
-        }
-
-        function getDayOfYear(date) {
-            const startOfYear = new Date(date.getFullYear(), 0, 0);
-            const diff = date - startOfYear;
-            const oneDay = 1000 * 60 * 60 * 24;
-            return Math.floor(diff / oneDay);
-        }
-
-        function updateTime() {
-            const timeDisplay = document.getElementById('current-time');
-            const dateTime = getCurrentDateTime();
-            timeDisplay.textContent = `${dateTime.dateStr} ${dateTime.timeStr}`;
-            updatePasswordDisplay(dateTime);
-        }
-
-        function updatePasswordDisplay(dateTime) {
-            const passwordDisplay = document.getElementById('password-display');
-            const authCodeInput = document.getElementById('auth-code-input');
-            const dayOfYear = getDayOfYear(new Date(dateTime.year, dateTime.month - 1, dateTime.day));
-            const a = jsonData[dayOfYear - 1] || [];
-
-
-            const hours = parseInt(dateTime.hours, 10);
-            const minutes = parseInt(dateTime.minutes, 10);
-
-            if ((hours === 7 && minutes >= 25) || (hours > 7 && hours < 11) || (hours === 11 && minutes < 30)) {
-                passwordDisplay.textContent = `钥匙密码：${a[0] || '不在拿钥匙的时间，再等等吧。'}`;
-                authCodeInput.style.display = 'none';
-                isAuthCodeEntered = false; // 重置标志
-            } else if ((hours === 13 && minutes >= 25) || (hours > 13 && hours < 17) || (hours === 17 && minutes < 30)) {
-                passwordDisplay.textContent = `钥匙密码：${a[1] || '不在拿钥匙的时间，再等等吧。'}`;
-                authCodeInput.style.display = 'none';
-                isAuthCodeEntered = false; // 重置标志
-            } else if ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 15)) {
-                if (!isAuthCodeEntered) {
-                    passwordDisplay.textContent = '请输入授权码';
-                    authCodeInput.style.display = 'flex'; // 使用flex布局
-                    authCodeInput.style.justifyContent = 'space-between'; // 两端对齐
+    // 使用 XMLHttpRequest 替代 fetch 加载 JSON 数据
+    function loadJsonData() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", jsonDataUrl, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    jsonData = JSON.parse(xhr.responseText);
+                    console.log("JSON数据加载成功", jsonData);
+                    updateTime();
+                } catch (error) {
+                    console.error("JSON数据解析失败", error);
+                    document.getElementById("debug-info").textContent =
+                        "调试信息：JSON数据解析失败，请检查文件内容";
                 }
-            } else {
-                if (!isAuthCodeEntered) {
-                    passwordDisplay.textContent = '不在拿钥匙的时间，再等等吧。';
-                }
-                authCodeInput.style.display = 'none';
+            } else if (xhr.readyState === 4) {
+                console.error("JSON数据加载失败", xhr.statusText);
+                document.getElementById("debug-info").textContent =
+                    "调试信息：JSON数据加载失败，请检查网络连接或文件路径";
             }
-        }
+        };
+        xhr.send();
+    }
 
-        function checkAuthCode() {
-            const authCode = document.getElementById('auth-code').value;
-            const dayOfYear = getDayOfYear(new Date());
-            const a = jsonData[dayOfYear - 1] || [];
-            if (authCode === a[2]) {
-                document.getElementById('password-display').textContent = `钥匙密码：${a[1]}`;
-                isAuthCodeEntered = true; // 设置标志为true，表示已经输入授权码
-            } else {
-                alert('授权码错误，请检查与工作人员提供的授权码是否一致');
+    // 获取当前日期和时间
+    function getCurrentDateTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+        return {
+            year,
+            month,
+            day,
+            hours,
+            minutes,
+            seconds,
+            dateStr: `${year}-${month}-${day}`,
+            timeStr: `${hours}:${minutes}:${seconds}`,
+        };
+    }
+
+    // 计算今天是今年的第几天
+    function getDayOfYear(date) {
+        const startOfYear = new Date(date.getFullYear(), 0, 0);
+        const diff = date - startOfYear;
+        const oneDay = 1000 * 60 * 60 * 24;
+        return Math.floor(diff / oneDay);
+    }
+
+    // 更新时间显示
+    function updateTime() {
+        const timeDisplay = document.getElementById("current-time");
+        const dateTime = getCurrentDateTime();
+        timeDisplay.textContent = `${dateTime.dateStr} ${dateTime.timeStr}`;
+        updatePasswordDisplay(dateTime);
+    }
+
+    // 更新密码显示
+    function updatePasswordDisplay(dateTime) {
+        const passwordDisplay = document.getElementById("password-display");
+        const authCodeInput = document.getElementById("auth-code-input");
+        const debugInfo = document.getElementById("debug-info");
+        const dayOfYear = getDayOfYear(new Date(dateTime.year, dateTime.month - 1, dateTime.day));
+        const a = jsonData[dayOfYear - 1] || [];
+
+        // 显示变量a的值
+        debugInfo.textContent = `调试信息：变量a的值为 [${a.join(", ")}]，今天是今年的第${dayOfYear}天`;
+
+        const hours = parseInt(dateTime.hours, 10);
+        const minutes = parseInt(dateTime.minutes, 10);
+
+        if ((hours === 7 && minutes >= 25) || (hours > 7 && hours < 11) || (hours === 11 && minutes < 30)) {
+            // 上午7:25到中午11:30
+            passwordDisplay.textContent = `钥匙密码：${a[0] || "不在拿钥匙的时间，再等等吧。"}`;
+            authCodeInput.style.display = "none";
+            isAuthCodeEntered = false; // 重置标志
+        } else if ((hours === 13 && minutes >= 25) || (hours > 13 && hours < 17) || (hours === 17 && minutes < 30)) {
+            // 下午1:25到下午5:30
+            passwordDisplay.textContent = `钥匙密码：${a[1] || "不在拿钥匙的时间，再等等吧。"}`;
+            authCodeInput.style.display = "none";
+            isAuthCodeEntered = false; // 重置标志
+        } else if ((hours === 11 && minutes >= 55) || (hours === 12) || (hours === 13 && minutes <= 15)) {
+            // 中午11:55到中午13:15
+            if (!isAuthCodeEntered) {
+                passwordDisplay.textContent = "请输入授权码";
+                authCodeInput.style.display = "flex"; // 使用flex布局
+                authCodeInput.style.justifyContent = "space-between"; // 两端对齐
             }
+        } else {
+            // 其他时间
+            if (!isAuthCodeEntered) {
+                passwordDisplay.textContent = "不在拿钥匙的时间，再等等吧。";
+            }
+            authCodeInput.style.display = "none";
         }
+    }
 
-            setInterval(updateTime, 1000);
-    </script>
+    // 检查授权码
+    function checkAuthCode() {
+        const authCode = document.getElementById("auth-code").value;
+        const dayOfYear = getDayOfYear(new Date());
+        const a = jsonData[dayOfYear - 1] || [];
+        if (authCode === a[2]) {
+            document.getElementById("password-display").textContent = `钥匙密码：${a[1]}`;
+            isAuthCodeEntered = true; // 设置标志为true，表示已经输入授权码
+        } else {
+            alert("授权码错误，请检查与工作人员提供的授权码是否一致");
+        }
+    }
+
+    // 在页面加载时弹出提示框
+    window.onload = function () {
+        alert("炉桥驾校：\n1. 上午7:25和下午13:30后会自动显示钥匙密码。\n2. 中午11:55至13:15间手动输入授权码后显示钥匙密码。");
+        loadJsonData(); // 调用加载JSON数据的函数
+        setInterval(updateTime, 1000); // 每秒更新时间
+    };
+</script>
 </body>
 </html>
