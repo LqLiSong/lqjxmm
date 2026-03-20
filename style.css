@@ -263,6 +263,11 @@ button:active {
     color: #555;
 }
 
+.time-period-setting:nth-child(2) label,
+.time-period-setting:nth-child(4) label {
+    color: #2196F3;
+}
+
 .time-period-setting input[type="time"] {
     padding: 8px 12px;
     font-size: 14px;
